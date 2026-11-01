@@ -1,0 +1,118 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: it-tools
+  namespace: tools
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app.kubernetes.io/name: it-tools
+    app.kubernetes.io/instance: it-tools-server
+    app.kubernetes.io/version: "2026.9.27"
+    app.kubernetes.io/component: server
+    app.kubernetes.io/part-of: it-tools
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: it-tools
+      app.kubernetes.io/instance: it-tools-server
+  replicas: 2
+  progressDeadlineSeconds: 120
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50%
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: it-tools
+        app.kubernetes.io/instance: it-tools-server
+        app.kubernetes.io/version: "2026.9.27"
+        app.kubernetes.io/component: server
+        app.kubernetes.io/part-of: it-tools
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: it-tools-serviceaccount
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      priorityClassName: low-priority
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+
+      containers:
+        - name: it-tools
+          image: sharevb/it-tools:2026.10.25@sha256:c6e68a94af10c73cb4e53eaa78726d8abbbb4ad1a89a3f127a69f85a9ae029ab
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            supplementalGroupsPolicy: Strict
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: PORT
+              value: "8080"
+            - name: HTTPS_PORT
+              value: "8443"
+          resources:
+            requests:
+              memory: "50Mi"
+              cpu: "20m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8443
+              name: https
+
+          startupProbe:
+            httpGet:
+              path: /
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+              subPath: tmp
+              readOnly: false
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 200Mi
