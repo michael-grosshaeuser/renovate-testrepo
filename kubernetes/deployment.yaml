@@ -47,7 +47,7 @@ spec:
 
       containers:
         - name: it-tools
-          image: sharevb/it-tools:2026.9.27
+          image: sharevb/it-tools:2026.9.27@sha256:a49111cc027bbd04110beb2a3baf5ebc84e07f1f97589919efba619798215e6c
           imagePullPolicy: IfNotPresent
           securityContext:
             readOnlyRootFilesystem: true
