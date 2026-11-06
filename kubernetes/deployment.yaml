@@ -9,7 +9,7 @@ metadata:
   labels:
     app.kubernetes.io/name: it-tools
     app.kubernetes.io/instance: it-tools-server
-    app.kubernetes.io/version: "2026.9.27"
+    app.kubernetes.io/version: "2026.10.25"
     app.kubernetes.io/component: server
     app.kubernetes.io/part-of: it-tools
 spec:
@@ -30,7 +30,7 @@ spec:
       labels:
         app.kubernetes.io/name: it-tools
         app.kubernetes.io/instance: it-tools-server
-        app.kubernetes.io/version: "2026.9.27"
+        app.kubernetes.io/version: "2026.10.25"
         app.kubernetes.io/component: server
         app.kubernetes.io/part-of: it-tools
     spec:
@@ -47,7 +47,7 @@ spec:
 
       containers:
         - name: it-tools
-          image: sharevb/it-tools:2026.9.27
+          image: sharevb/it-tools:2026.10.25@sha256:c6e68a94af10c73cb4e53eaa78726d8abbbb4ad1a89a3f127a69f85a9ae029ab
           imagePullPolicy: IfNotPresent
           securityContext:
             readOnlyRootFilesystem: true
